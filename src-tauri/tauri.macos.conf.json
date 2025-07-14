@@ -1,0 +1,19 @@
+{
+  "identifier": "cn.wind-explorer.chellox",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "hiddenTitle": true,
+        "titleBarStyle": "Overlay",
+        "minWidth": 600,
+        "minHeight": 450,
+        "decorations": true,
+        "trafficLightPosition": {
+          "x": 9,
+          "y": 14
+        }
+      }
+    ]
+  }
+}

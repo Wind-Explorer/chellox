@@ -1,0 +1,13 @@
+{
+  "home": {
+    "heading": "Adam's Template Tauri App"
+  },
+  "settings": {
+    "heading": "App Settings",
+    "subheading": "Configure chellox",
+    "localeSwitcher": {
+      "label": "Language",
+      "placeholder": "Select Language"
+    }
+  }
+}

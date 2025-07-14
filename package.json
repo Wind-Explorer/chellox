@@ -1,0 +1,40 @@
+{
+  "name": "chellox",
+  "private": true,
+  "version": "0.0.124",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@heroui/react": "2.7.6",
+    "@tauri-apps/api": "^2.6.0",
+    "@tauri-apps/plugin-os": "^2.3.0",
+    "@tauri-apps/plugin-shell": "^2.3.0",
+    "framer-motion": "^11.18.2",
+    "i18next": "^24.2.3",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-http-backend": "^3.0.2",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.487.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^15.6.0",
+    "react-router-dom": "^6.30.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.6.2",
+    "@types/lodash": "^4.17.20",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19"
+  }
+}

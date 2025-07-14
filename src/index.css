@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+
+    /*
+       Introduced in Internet Explorer 10.
+       See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
+     */
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    overflow: auto;
+}
+
+.titlebar-height-padding {
+    @apply pt-[32px];
+}
+
+.titlebar-height-margin {
+    @apply mt-[32px];
+}
+
+.titlebar-height {
+    @apply h-[32px];
+}

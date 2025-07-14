@@ -1,0 +1,13 @@
+{
+  "home": {
+    "heading": "Adam 的 Tauri 应用模版"
+  },
+  "settings": {
+    "heading": "应用设置",
+    "subheading": "配置 chellox",
+    "localeSwitcher": {
+      "label": "语言",
+      "placeholder": "选择语言"
+    }
+  }
+}
