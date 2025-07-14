@@ -1,4 +1,5 @@
-import { Button, Input, NumberInput } from "@heroui/react";
+import { Button, getKeyValue, Input, NumberInput } from "@heroui/react";
+import type { Selection } from "@heroui/react";
 import {
   Table,
   TableBody,
@@ -7,26 +8,17 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { commands } from "../../bindings";
+import AutoSizer from "react-virtualized-auto-sizer";
 
 export default function HomePage() {
   const [userInput, setUserInput] = useState("");
   const [numLines, setNumLines] = useState<number | undefined>(undefined);
   const [submissionResponse, setSubmissionResponse] = useState<string[]>([]);
-  const [maxTableHeight, setMaxTableHeight] = useState(
-    typeof window !== "undefined" ? window.innerHeight - 250 : 800
+  const [selectedLogEntries, setSelectedLogEntries] = useState<Selection>(
+    new Set(["2"])
   );
-
-  // Update maxTableHeight on window resize
-  useEffect(() => {
-    function handleResize() {
-      setMaxTableHeight(window.innerHeight - 130);
-    }
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const handleSubmit = async () => {
     const tailLines =
@@ -44,61 +36,80 @@ export default function HomePage() {
   // Prepare table rows
   const rows = submissionResponse.map((line, idx) => ({
     key: idx.toString(),
+    lineNumber: idx + 1,
     content: line,
   }));
 
-  const columns = [{ key: "content", label: "Line" }];
+  const columns = [
+    { key: "lineNumber", label: "#" },
+    { key: "content", label: "Line" },
+  ];
 
   return (
-    <div className="p-4 max-h-full flex flex-col gap-4">
-      <div className="flex gap-4 items-center">
+    <div className="size-full flex flex-col">
+      <div className="flex gap-4 items-center p-4">
         <Input
           label="Path to log file"
           value={userInput}
           onValueChange={setUserInput}
           size="sm"
         />
-        <NumberInput
-          value={numLines}
-          onValueChange={setNumLines}
-          min={1}
-          label="Last N lines (optional)"
-          size="sm"
-        />
-        <Button size="lg" radius="sm" color="primary" onPress={handleSubmit}>
-          Load
-        </Button>
+        <div className="flex flex-row gap-4 min-w-80">
+          <NumberInput
+            value={numLines}
+            onValueChange={setNumLines}
+            min={1}
+            label="Last N lines (optional)"
+            size="sm"
+          />
+          <Button size="lg" radius="sm" color="primary" onPress={handleSubmit}>
+            Load
+          </Button>
+        </div>
       </div>
-      <div className="max-h-full overflow-auto">
-        <Table
-          hideHeader
-          isVirtualized
-          aria-label="Log file lines"
-          selectionBehavior="replace"
-          selectionMode="multiple"
-          className="max-h-full overflow-auto"
-          maxTableHeight={maxTableHeight}
-          shadow="none"
-        >
-          <TableHeader columns={columns}>
-            {(column) => (
-              <TableColumn key={column.key}>{column.label}</TableColumn>
-            )}
-          </TableHeader>
-          <TableBody items={rows}>
-            {(item) => (
-              <TableRow key={item.key}>
-                {() => (
-                  <TableCell>
-                    <span className="whitespace-pre-wrap opacity-70">
-                      {item.content}
-                    </span>
-                  </TableCell>
+      <div className="size-full overflow-auto bg-default-400/20">
+        <AutoSizer>
+          {({ scaledHeight, scaledWidth }) => (
+            <Table
+              hideHeader
+              isVirtualized
+              aria-label="Log file lines"
+              selectionBehavior="replace"
+              selectionMode="multiple"
+              selectedKeys={selectedLogEntries}
+              onSelectionChange={setSelectedLogEntries}
+              className="*:bg-transparent *:p-0 w-screen h-max"
+              width={scaledWidth}
+              radius="none"
+              maxTableHeight={scaledHeight}
+              shadow="none"
+            >
+              <TableHeader columns={columns}>
+                {(column) => (
+                  <TableColumn key={column.key}>{column.label}</TableColumn>
                 )}
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              </TableHeader>
+              <TableBody items={rows}>
+                {(item) => (
+                  <TableRow key={item.key}>
+                    {(columnKey) => (
+                      <TableCell>
+                        <span
+                          className={
+                            "text-nowrap text-xs font-mono " +
+                            (columnKey === "lineNumber" ? "opacity-50" : "")
+                          }
+                        >
+                          {getKeyValue(item, columnKey)}
+                        </span>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </AutoSizer>
       </div>
     </div>
   );
