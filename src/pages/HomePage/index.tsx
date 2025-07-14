@@ -1,54 +1,104 @@
 import { Button, Input, NumberInput } from "@heroui/react";
-import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@heroui/react";
+import { useEffect, useState } from "react";
 import { commands } from "../../bindings";
 
 export default function HomePage() {
   const [userInput, setUserInput] = useState("");
   const [numLines, setNumLines] = useState<number | undefined>(undefined);
-  const [submissionResponse, setSubmissionResponse] = useState("");
+  const [submissionResponse, setSubmissionResponse] = useState<string[]>([]);
+  const [maxTableHeight, setMaxTableHeight] = useState(
+    typeof window !== "undefined" ? window.innerHeight - 250 : 800
+  );
+
+  // Update maxTableHeight on window resize
+  useEffect(() => {
+    function handleResize() {
+      setMaxTableHeight(window.innerHeight - 130);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleSubmit = async () => {
-    if (numLines !== undefined && numLines !== null && numLines > 0) {
-      const result = await commands.readLastLines(userInput, numLines);
-      if (result.status === "ok") {
-        setSubmissionResponse(result.data.join("\n"));
-      } else {
-        setSubmissionResponse(`Error: ${result.error}`);
-      }
+    const tailLines =
+      numLines !== undefined && numLines !== null && numLines > 0
+        ? numLines
+        : null;
+    const result = await commands.readFile(userInput, tailLines);
+    if (result.status === "ok") {
+      setSubmissionResponse(result.data);
     } else {
-      const result = await commands.readFileByPath(userInput);
-      if (result.status === "ok") {
-        setSubmissionResponse(result.data);
-      } else {
-        setSubmissionResponse(`Error: ${result.error}`);
-      }
+      setSubmissionResponse([`Error: ${result.error}`]);
     }
   };
 
+  // Prepare table rows
+  const rows = submissionResponse.map((line, idx) => ({
+    key: idx.toString(),
+    content: line,
+  }));
+
+  const columns = [{ key: "content", label: "Line" }];
+
   return (
-    <div className="p-4 h-full flex flex-col gap-4">
+    <div className="p-4 max-h-full flex flex-col gap-4">
       <div className="flex gap-4 items-center">
         <Input
           label="Path to log file"
           value={userInput}
           onValueChange={setUserInput}
+          size="sm"
         />
         <NumberInput
           value={numLines}
           onValueChange={setNumLines}
           min={1}
           label="Last N lines (optional)"
-          className="min-w-12"
+          size="sm"
         />
-        <Button size="lg" color="primary" onPress={handleSubmit}>
-          Submit
+        <Button size="lg" radius="sm" color="primary" onPress={handleSubmit}>
+          Load
         </Button>
       </div>
-      <textarea
-        className="size-full p-4 bg-default-500/10 rounded-xl shadow-small"
-        value={submissionResponse}
-        onChange={(e) => setSubmissionResponse(e.target.value)}
-      />
+      <div className="max-h-full overflow-auto">
+        <Table
+          hideHeader
+          isVirtualized
+          aria-label="Log file lines"
+          selectionBehavior="replace"
+          selectionMode="multiple"
+          className="max-h-full overflow-auto"
+          maxTableHeight={maxTableHeight}
+          shadow="none"
+        >
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            )}
+          </TableHeader>
+          <TableBody items={rows}>
+            {(item) => (
+              <TableRow key={item.key}>
+                {() => (
+                  <TableCell>
+                    <span className="whitespace-pre-wrap opacity-70">
+                      {item.content}
+                    </span>
+                  </TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

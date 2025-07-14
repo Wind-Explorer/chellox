@@ -38,6 +38,20 @@ export default function WindowTitlebar() {
     };
   }, []);
 
+  const windowTitlebarContent = (
+    <div
+      data-tauri-drag-region
+      className="absolute inset-0 size-full flex flex-row justify-center items-center z-50 border-b border-default-500/20"
+    >
+      <p
+        data-tauri-drag-region
+        className="text-xs opacity-70 font-bold cursor-default"
+      >
+        CHELLOX
+      </p>
+    </div>
+  );
+
   return (
     <>
       {platformName === "windows" && (
@@ -50,10 +64,9 @@ export default function WindowTitlebar() {
         >
           <div className="w-full h-full *:my-auto flex flex-row justify-between">
             <div className="relative flex flex-row flex-grow *:my-auto h-full">
-              <div
-                data-tauri-drag-region
-                className="absolute w-full h-full"
-              ></div>
+              <div data-tauri-drag-region className="absolute w-full h-full">
+                {windowTitlebarContent}
+              </div>
             </div>
             <div className="flex flex-row w-max h-full *:h-full *:transition-colors *:duration-200">
               <button
@@ -101,7 +114,11 @@ export default function WindowTitlebar() {
         </div>
       )}
       {platformName === "macos" && !isMaximized && (
-        <div data-tauri-drag-region className="relative w-full h-[32px]"></div>
+        <>
+          <div data-tauri-drag-region className="relative w-full h-[32px]">
+            {windowTitlebarContent}
+          </div>
+        </>
       )}
     </>
   );

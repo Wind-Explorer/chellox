@@ -1,44 +1,41 @@
 use std::{
-    collections::VecDeque,
-    fs::{self, File},
-    io::{BufRead, BufReader},
+    fs::File,
+    io::{BufRead, BufReader, BufWriter},
 };
 
-#[tauri::command]
-#[specta::specta]
-fn read_file_by_path(path: String) -> Result<String, String> {
-    fs::read_to_string(path).map_err(|e| e.to_string())
-}
+use tail::BackwardsReader;
 
 #[tauri::command]
 #[specta::specta]
-fn read_last_lines(path: String, num_lines: u32) -> Result<Vec<String>, String> {
-    bufreader_last_lines(&path, num_lines as usize).map_err(|e| e.to_string())
+fn read_file(path: String, tail_lines: Option<u32>) -> Result<Vec<String>, String> {
+    match tail_lines {
+        Some(n) => backwardsreader_last_lines(&path, n as usize).map_err(|e| e.to_string()),
+        None => read_all_lines(&path).map_err(|e| e.to_string()),
+    }
 }
 
-fn bufreader_last_lines(path: &str, num_lines: usize) -> std::io::Result<Vec<String>> {
+fn read_all_lines(path: &str) -> std::io::Result<Vec<String>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
-    let mut lines = VecDeque::with_capacity(num_lines);
+    reader.lines().collect::<Result<Vec<_>, _>>()
+}
 
-    for line in reader.lines() {
-        let line = line?;
-        if lines.len() == num_lines {
-            lines.pop_front();
-        }
-        lines.push_back(line);
-    }
+fn backwardsreader_last_lines(path: &str, num_lines: usize) -> std::io::Result<Vec<String>> {
+    let file = File::open(path)?;
+    let mut reader = BufReader::new(file);
+    let mut backwards = BackwardsReader::new(num_lines, &mut reader);
 
-    Ok(lines.into_iter().collect())
+    let mut buffer = BufWriter::new(Vec::new());
+    backwards.read_all(&mut buffer);
+
+    let content = String::from_utf8_lossy(&buffer.get_ref());
+    Ok(content.lines().map(|s| s.to_string()).collect())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let builder =
-        tauri_specta::Builder::<tauri::Wry>::new().commands(tauri_specta::collect_commands![
-            read_file_by_path,
-            read_last_lines
-        ]);
+    let builder = tauri_specta::Builder::<tauri::Wry>::new()
+        .commands(tauri_specta::collect_commands![read_file,]);
     #[cfg(debug_assertions)]
     builder
         .export(
