@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-import { useState } from "react";
+import { Key, useState } from "react";
 import { commands } from "../../bindings";
 import AutoSizer from "react-virtualized-auto-sizer";
 
@@ -74,7 +74,9 @@ export default function HomePage() {
               hideHeader
               isVirtualized
               aria-label="Log file lines"
-              selectionBehavior="replace"
+              selectionBehavior={
+                (selectedLogEntries as Set<Key>).size > 1 ? "toggle" : "replace"
+              }
               selectionMode="multiple"
               selectedKeys={selectedLogEntries}
               onSelectionChange={setSelectedLogEntries}
