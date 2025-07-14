@@ -24,6 +24,7 @@ export default function HomePage() {
       setMaxTableHeight(window.innerHeight - 130);
     }
     window.addEventListener("resize", handleResize);
+    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 

@@ -8,10 +8,19 @@ use tail::BackwardsReader;
 #[tauri::command]
 #[specta::specta]
 fn read_file(path: String, tail_lines: Option<u32>) -> Result<Vec<String>, String> {
+    if path.starts_with("http") {
+        return fetch_http_lines(&path);
+    }
     match tail_lines {
         Some(n) => backwardsreader_last_lines(&path, n as usize).map_err(|e| e.to_string()),
         None => read_all_lines(&path).map_err(|e| e.to_string()),
     }
+}
+
+fn fetch_http_lines(url: &str) -> Result<Vec<String>, String> {
+    let response = reqwest::blocking::get(url).map_err(|e| e.to_string())?;
+    let body = response.text().map_err(|e| e.to_string())?;
+    Ok(body.lines().map(|s| s.to_string()).collect())
 }
 
 fn read_all_lines(path: &str) -> std::io::Result<Vec<String>> {
