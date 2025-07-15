@@ -1,8 +1,13 @@
 use std::{
     fs::File,
-    io::{BufRead, BufReader, BufWriter},
+    io::{BufRead, BufReader},
 };
 
+// Unix-specific imports for efficient tail functionality
+#[cfg(unix)]
+use std::io::BufWriter;
+
+#[cfg(unix)]
 use tail::BackwardsReader;
 
 #[tauri::command]
@@ -29,6 +34,8 @@ fn read_all_lines(path: &str) -> std::io::Result<Vec<String>> {
     reader.lines().collect::<Result<Vec<_>, _>>()
 }
 
+// Unix/Linux/macOS implementation using the efficient tail crate
+#[cfg(unix)]
 fn backwardsreader_last_lines(path: &str, num_lines: usize) -> std::io::Result<Vec<String>> {
     let file = File::open(path)?;
     let mut reader = BufReader::new(file);
@@ -39,6 +46,25 @@ fn backwardsreader_last_lines(path: &str, num_lines: usize) -> std::io::Result<V
 
     let content = String::from_utf8_lossy(&buffer.get_ref());
     Ok(content.lines().map(|s| s.to_string()).collect())
+}
+
+// Windows implementation - fallback that reads all lines
+#[cfg(windows)]
+fn backwardsreader_last_lines(path: &str, num_lines: usize) -> std::io::Result<Vec<String>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+
+    // Read all lines first (Windows fallback)
+    let all_lines: Vec<String> = reader.lines().collect::<Result<Vec<_>, _>>()?;
+
+    // Return the last N lines
+    let start_index = if all_lines.len() > num_lines {
+        all_lines.len() - num_lines
+    } else {
+        0
+    };
+
+    Ok(all_lines[start_index..].to_vec())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
