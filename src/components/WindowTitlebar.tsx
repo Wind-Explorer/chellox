@@ -38,20 +38,6 @@ export default function WindowTitlebar() {
     };
   }, []);
 
-  const windowTitlebarContent = (
-    <div
-      data-tauri-drag-region
-      className="absolute inset-0 size-full flex flex-row justify-center items-center z-50"
-    >
-      <p
-        data-tauri-drag-region
-        className="text-xs opacity-70 font-bold cursor-default"
-      >
-        CHELLOX
-      </p>
-    </div>
-  );
-
   return (
     <>
       {platformName === "windows" && (
