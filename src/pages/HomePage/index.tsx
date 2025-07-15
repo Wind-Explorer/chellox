@@ -1,4 +1,4 @@
-import type { Selection } from "@heroui/react";
+import { Divider, type Selection } from "@heroui/react";
 import { useState } from "react";
 import { commands } from "../../bindings";
 import { LogEntry } from "./components/types";
@@ -18,7 +18,7 @@ export default function HomePage() {
       numLines !== undefined && numLines !== null && numLines > 0
         ? numLines
         : null;
-    const result = await commands.readFile(userInput, tailLines);
+    const result = await commands.readFile(userInput, Number(tailLines));
     if (result.status === "ok") {
       setSubmissionResponse(result.data);
     } else {
@@ -42,6 +42,7 @@ export default function HomePage() {
         onNumLinesChange={setNumLines}
         onSubmit={handleSubmit}
       />
+      <Divider />
       <LogTable
         rows={rows}
         selectedLogEntries={selectedLogEntries}

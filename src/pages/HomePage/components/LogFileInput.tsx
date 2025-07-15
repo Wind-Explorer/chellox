@@ -1,4 +1,4 @@
-import { Button, Input, NumberInput } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import type { LogFileInputProps } from "./types";
 
 export default function LogFileInput({
@@ -9,22 +9,25 @@ export default function LogFileInput({
   onSubmit,
 }: LogFileInputProps) {
   return (
-    <div className="flex gap-4 items-center p-4">
+    <div className="flex gap-2 items-center p-2">
       <Input
-        label="Path to log file"
+        placeholder="Path to log file"
         value={userInput}
         onValueChange={onUserInputChange}
         size="sm"
       />
-      <div className="flex flex-row gap-4 min-w-80">
-        <NumberInput
-          value={numLines}
-          onValueChange={onNumLinesChange}
+      <div className="flex flex-row gap-2 items-center min-w-80">
+        <Input
+          placeholder="Last N lines (optional)"
+          type="number"
           min={1}
-          label="Last N lines (optional)"
+          /// @ts-ignore
+          value={numLines}
+          /// @ts-ignore
+          onValueChange={onNumLinesChange}
           size="sm"
         />
-        <Button size="lg" radius="sm" color="primary" onPress={onSubmit}>
+        <Button size="sm" radius="sm" color="primary" onPress={onSubmit}>
           Load
         </Button>
       </div>
